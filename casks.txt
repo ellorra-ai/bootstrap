@@ -1,5 +1,6 @@
 firefox
 cursor
+excalidrawz
 font-andale-mono
 font-azeret-mono
 font-b612-mono
