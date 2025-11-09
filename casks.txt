@@ -1,4 +1,6 @@
 firefox
+claude
+claude-code
 cursor
 excalidrawz
 font-andale-mono
