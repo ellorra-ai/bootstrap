@@ -2,52 +2,50 @@ terraform {
   required_providers {
     local = {
       source  = "hashicorp/local"
-      version = "2.2.3"
+      version = "2.5.3"
     }
   }
 }
 
-variable "services" {
-  type    = list(string)
-  default = ["mysql"]
-}
-
 variable "dotfiles" {
   type    = list(string)
-  default = [".my-profile", ".my-alias", ".my-env", ".my-functions"]
+  default = [".profile", ".profile-alias", ".profile-env", ".profile-function"]
 }
 
-variable "scripts" {
-  type    = list(string)
-  default = ["changefont"]
-}
-
-resource "null_resource" "brew-casks-install" {
+resource "null_resource" "dotfiles-install" {
+  for_each = toset(var.dotfiles)
   provisioner "local-exec" {
-    command = "brew install --cask $(cat cask.txt | tr \"\\n\" \" \")"
+    command = "cp conf/${each.key} $${HOME}/${each.key}"
+  }
+}
+
+resource "null_resource" "global-ignore-install" {
+  triggers = {
+    gitignore = filemd5("conf/.gitignore_global")
+  }
+  provisioner "local-exec" {
+    command = "cp conf/.gitignore_global $${HOME}/.gitignore_global"
+  }
+  provisioner "local-exec" {
+    command = "git config --global core.excludesfile $${HOME}/.gitignore_global"
+  }
+}
+
+resource "null_resource" "brew-cask-install" {
+  triggers = {
+    casks = filemd5("casks.txt")
+  }
+  provisioner "local-exec" {
+    command = "while read -r cask; do [[ -n \"$cask\" ]] && (brew list --cask \"$cask\" &>/dev/null || brew install --cask \"$cask\"); done < casks.txt"
   }
 }
 
 resource "null_resource" "brew-formulae-install" {
-  provisioner "local-exec" {
-    command = "brew install $(cat formulae.txt | tr \"\\n\" \" \")"
+  triggers = {
+    formulae = filemd5("formulae.txt")
   }
-}
-
-resource "null_resource" "brew-services-install" {
-  for_each = toset(var.services)
   provisioner "local-exec" {
-    command = "brew services start ${each.key}"
-  }
-  depends_on = [
-    null_resource.brew-formulae-install
-  ]
-}
-
-resource "null_resource" "scripts-install" {
-  for_each = toset(var.scripts)
-  provisioner "local-exec" {
-    command = "sudo cp bin/${each.key} /usr/local/bin"
+    command = "while read -r formulae; do [[ -n \"$formulae\" ]] && (brew list \"$formulae\" &>/dev/null || brew install \"$formulae\"); done < formulae.txt"
   }
 }
 
@@ -61,17 +59,8 @@ resource "null_resource" "terminal-updates" {
   }
 
   provisioner "local-exec" {
-    command = "echo \"source ~/.my-profile\" >> $${HOME}/.zshrc"
+    command = "echo \"source $${HOME}/.profile\" >> $${HOME}/.zshrc"
   }
-}
-
-resource "null_resource" "java-updates" {
-  provisioner "local-exec" {
-    command = "sudo ln -sfn /usr/local/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-11.jdk"
-  }
-  depends_on = [
-    null_resource.brew-formulae-install
-  ]
 }
 
 resource "null_resource" "docker-updates" {

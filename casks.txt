@@ -1,0 +1,9 @@
+firefox
+cursor
+font-andale-mono
+font-azeret-mono
+font-b612-mono
+font-roboto-mono
+gpg-suite
+slack
+sublime-text

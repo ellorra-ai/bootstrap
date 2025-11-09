@@ -1,49 +1,51 @@
-# terraform-my-macos
-Using terraform to setup my macOS development environment
+# terraform
 
-# Requires
+## all formulae installed
 
-- [Terraform](https://www.terraform.io/downloads)
-- [Homebrew](https://brew.sh/)
-
-# Software Catalog
-
-- Firefox
-- Slack
-- Golang
-- Openstack CLI
-- Mysql
-- Minio
-- Oh-my-zsh
-- OpenJDK 11
-- Maven
-- Sbt
-- Gradle
-- Gifski
+- cookiecutter
+- coreutils
+- dasel
+- dive
+- gh
+- gifski
+- go@1.25
+- hub
 - jq
+- node@22
+- nvm
+- openapi-generator
+- sublime-text
+- trash
+- yarn
 - yq
-- Docker
-- VS Code
 
+## all casks installed
 
-# Installation
+- cursor
+- font-andale-mono
+- font-azeret-mono
+- font-b612-mono
+- font-roboto-mono
+- gpg-suite
+- slack
+
+## requires
 
 ```
-terraform init
+brew tap hashicorp/tap
+brew install hashicorp/tap/terraform
 ```
 
-```
-terraform fmt && terraform validate
-```
+## install
 
 ```
 terraform plan
+terraform apply -auto-approve
 ```
 
-```
-terraform apply --auto-approve
-```
+## rebuild
 
 ```
-terraform init -upgrade
+terraform destroy
+terraform apply -auto-approve
 ```
